@@ -38,9 +38,8 @@ RUN wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz && \
     cd .. && \
     rm -rf Python-3.11.9* && \
     ln -s /usr/local/bin/python3.11 /usr/bin/python3 && \
-    ln -s /usr/local/bin/pip3.11 /usr/bin/pip3
+    ln -s /usr/local/bin/pip3.11 /usr/bin/pip3 && \
     ln -s /usr/local/bin/python3.11 /usr/bin/python
-
 
 # Verifica la versión de Python y pip
 RUN python3 --version && pip3 --version
@@ -48,8 +47,8 @@ RUN python3 --version && pip3 --version
 # Copia los archivos del proyecto
 COPY . .
 
-# Instala dependencias de Python
-RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
+# Instala dependencias de Python (si hay requirements.txt)
+RUN if [ -f requirements.txt ]; then pip3 install --upgrade pip && pip3 install -r requirements.txt; fi
 
 # Da permisos de ejecución al wrapper de Maven
 RUN chmod +x ./mvnw
@@ -57,7 +56,7 @@ RUN chmod +x ./mvnw
 # Compila el proyecto Spring Boot (sin tests)
 RUN ./mvnw clean package -DskipTests
 
-# Expone el puerto 8080
+# Expone el puerto 8080 (Render lo detecta automáticamente)
 EXPOSE 8080
 
 # Ejecuta la aplicación Spring Boot
