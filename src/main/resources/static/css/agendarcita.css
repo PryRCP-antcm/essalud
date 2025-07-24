@@ -1,0 +1,23 @@
+.columna-conteiner {
+    background-color: #C7ECF9;
+}
+
+
+.contenedor-cuadro {
+    width: 900px;
+    max-width: 100%;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-chatbot {
+    background-color: #003366;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.btn-chatbot:hover {
+    background-color: #002244;
+}

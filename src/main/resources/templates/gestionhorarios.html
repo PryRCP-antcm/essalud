@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - Gestión de Horarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragmentos.css}">
+    <link rel="stylesheet" th:href="@{/css/general.css}">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 col-md-2">
+                <div th:replace="~{fragmentos :: header2}"></div>
+            </div>
+
+            <div class="col-12 col-md-10 columna-conteiner">
+                <div class="container-fluid pt-5 min-vh-100">
+                    <div class="contenedor-cuadro p-4">
+                        <!-- Título -->
+                        <h2 class="fw-bold mb-4">Registrar Horario Médico</h2>
+
+                        <!-- Formulario -->
+                        <form th:action="@{/horarios/crear}" method="post" class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Especialidad:</label>
+                                <select id="especialidadId" name="especialidadId" class="form-select" required>
+                                    <option value="">-- Seleccione --</option>
+                                    <option th:each="esp : ${especialidades}" th:value="${esp.id}"
+                                        th:text="${esp.nombre}"></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Médico:</label>
+                                <select name="medicoId" id="medicoId" class="form-select" required>
+                                    <option value="">-- Seleccione una especialidad --</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Inicio:</label>
+                                <input type="date" name="fechaInicio" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Fin:</label>
+                                <input type="date" name="fechaFin" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Hora Inicio:</label>
+                                <input type="time" name="horaInicio" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Hora Fin:</label>
+                                <input type="time" name="horaFin" class="form-control" required>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="disponible" checked>
+                                    <label class="form-check-label">Disponible</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Guardar Horario</button>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <!-- Filtros de búsqueda -->
+                        <h4 class="fw-bold mb-3">Filtrar Horarios</h4>
+                        <form th:action="@{/gestionhorarios}" method="get" class="row g-3 mb-4 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">Especialidad:</label>
+                                <select name="especialidadId" class="form-select">
+                                    <option value="">Todas</option>
+                                    <option th:each="esp : ${especialidades}" th:value="${esp.id}"
+                                        th:text="${esp.nombre}"></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Médico:</label>
+                                <select name="medicoId" class="form-select">
+                                    <option value="">Todos</option>
+                                    <option th:each="medico : ${medicos}" th:value="${medico.id}"
+                                        th:text="${medico.nombre}"></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Fecha:</label>
+                                <input type="date" name="fecha" class="form-control">
+                            </div>
+
+                            <div class="col-md-1 text-center">
+                                <button type="submit" class="btn btn-primary">Filtrar</button>
+                            </div>
+                        </form>
+
+
+
+                        <!-- Tabla de horarios -->
+                        <h4 class="fw-bold mb-3">Horarios Registrados</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Médico</th>
+                                        <th scope="col">Especialidad</th>
+                                        <th scope="col">Fecha</th>
+                                        <th scope="col">Hora Inicio</th>
+                                        <th scope="col">Hora Fin</th>
+                                        <th scope="col">Cupos</th>
+                                        <th scope="col">Disponible</th>
+                                        <th scope="col">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="horario : ${horarios}">
+                                        <td th:text="${horario.id}"></td>
+                                        <td th:text="${horario.medico.nombre}"></td>
+                                        <td th:text="${horario.medico.especialidad.nombre}"></td>
+                                        <td th:text="${#temporals.format(horario.fecha, 'dd/MM/yyyy')}"></td>
+                                        <td th:text="${horario.horaInicio}"></td>
+                                        <td th:text="${horario.horaFin}"></td>
+                                        <td
+                                            th:text="${horario.cupo} + '/' + ${T(com.example.springbootaidemo.model.Horario).MAX_CUPOS}">
+                                        </td>
+                                        <td th:text="${horario.disponible ? 'Sí' : 'No'}"></td>
+                                        <td>
+                                            <form th:action="@{'/horarios/eliminar/' + ${horario.id}}" method="post"
+                                                onsubmit="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script carga médicos -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const especialidadSelect = document.getElementById("especialidadId");
+            const medicoSelect = document.getElementById("medicoId");
+
+            especialidadSelect.addEventListener("change", function () {
+                const especialidadId = this.value;
+                medicoSelect.innerHTML = '<option value="">Cargando...</option>';
+
+                if (especialidadId) {
+                    fetch(`/api/medicos/porEspecialidad?especialidadId=${especialidadId}`)
+                        .then(res => res.json())
+                        .then(medicos => {
+                            medicoSelect.innerHTML = '<option value="">-- Seleccione --</option>';
+                            medicos.forEach(medico => {
+                                const option = document.createElement("option");
+                                option.value = medico.id;
+                                option.textContent = medico.nombre;
+                                medicoSelect.appendChild(option);
+                            });
+                        })
+                        .catch(err => {
+                            console.error("Error al cargar médicos:", err);
+                            medicoSelect.innerHTML = '<option value="">Error al cargar</option>';
+                        });
+                } else {
+                    medicoSelect.innerHTML = '<option value="">-- Seleccione una especialidad --</option>';
+                }
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

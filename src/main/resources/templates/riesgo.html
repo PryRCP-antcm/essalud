@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riesgo de diabetes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/fragmentos.css}">
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 col-md-2">
+                <div th:replace="~{fragmentos :: header}"></div>
+            </div>
+            <div class="col-12 col-md-10 columna-conteiner">
+                <div class="container-fluid d-flex justify-content-center align-items-start pt-5 min-vh-100">
+                    <div class="contenedor-cuadro mx-auto mt-5">
+                        <h2 class="mb-4 text-center fw-bold text-primary">Predicción de Riesgo de Diabetes</h2>
+
+                        <form th:action="@{/riesgo}" method="post" class="w-100">
+                            <!--formulario-->
+                            <div class="row g-3">
+                                <!-- Edad -->
+                                <div class="form-group mt-4">
+                                    <label for="edad"><strong>1. Edad</strong></label>
+                                    <input type="number" id="edad" name="edad" class="form-control" min="1" max="120"
+                                        required placeholder="Ingrese su edad">
+                                </div>
+
+                                <!-- Genero -->
+                                <div class="form-group mt-4">
+                                    <label for="genero"><strong>2. Género</strong></label>
+                                    <select id="genero" name="genero" class="form-control"
+                                        onchange="mostrarCampoEmbarazos()" required>
+                                        <option value="">Seleccione su género</option>
+                                        <option value="masculino">Masculino</option>
+                                        <option value="femenino">Femenino</option>
+                                    </select>
+                                </div>
+
+                                <!-- Embarazos -->
+                                <div class="form-group mt-4" id="campoEmbarazos" style="display: none;">
+                                    <label for="embarazos"><strong>¿Cuántos embarazos ha tenido?</strong></label>
+                                    <input type="number" id="embarazos" name="embarazos" class="form-control" min="0"
+                                        placeholder="Ingrese la cantidad de embarazos">
+                                </div>
+                                <input type="hidden" id="embarazosHombre" name="embarazos" value="0">
+
+
+                                <!-- Peso -->
+                                <div class="form-group mt-4">
+                                    <label for="peso"><strong>3. ¿Cuál es su peso actual (kg)?</strong></label>
+                                    <input type="number" step="0.1" id="peso" name="peso" class="form-control"
+                                        placeholder="Ej. 70" required oninput="calcularIMC()">
+                                </div>
+
+                                <!-- Estatura -->
+                                <div class="form-group mt-4">
+                                    <label for="estatura"><strong>4. ¿Cuál es su estatura (m)?</strong></label>
+                                    <input type="number" step="0.01" id="estatura" name="estatura" class="form-control"
+                                        placeholder="Ej. 1.75" required oninput="calcularIMC()">
+                                </div>
+
+                                <!-- Resultado del IMC -->
+                                <div class="form-group mt-4">
+                                    <label for="imc"><strong>Su IMC calculado es:</strong></label>
+                                    <input type="text" id="imcVisible" class="form-control" readonly>
+                                </div>
+                                <input type="hidden" id="imc" name="imc">
+
+                                <!-- Glucosa -->
+                                <div class="form-group mt-4">
+                                    <label class="form-label fw-bold">6. Nivel de Glucosa (mg/dL)</label>
+                                    <div class="input-group mb-2">
+                                        <input type="number" class="form-control" name="glucosa" id="glucosaInput"
+                                            placeholder="Ej: 120" required />
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            onclick="toggleEstimador()">No sé mi glucosa</button>
+                                    </div>
+
+                                    <div id="estimadorGlucosa" style="display: none;">
+                                        <label class="form-label fw-bold">Estimación de Glucosa (mg/dL)</label>
+
+                                        <p>¿Consume bebidas azucaradas más de 3 veces por semana?</p>
+                                        <div>
+                                            <input type="radio" id="azucaradas-si" name="azucaradas" value="si">
+                                            <label for="azucaradas-si">Sí</label>
+                                            <input type="radio" id="azucaradas-no" name="azucaradas" value="no">
+                                            <label for="azucaradas-no">No</label>
+                                        </div>
+
+                                        <p>¿Come alimentos fritos o procesados más de 3 veces por semana?</p>
+                                        <div>
+                                            <input type="radio" id="fritos-si" name="fritos" value="si">
+                                            <label for="fritos-si">Sí</label>
+                                            <input type="radio" id="fritos-no" name="fritos" value="no">
+                                            <label for="fritos-no">No</label>
+                                        </div>
+
+                                        <p>¿Cuántas porciones de verduras consume al día?</p>
+                                        <div>
+                                            <input type="radio" id="verduras-1" name="verduras" value="menos1">
+                                            <label for="verduras-1">Menos de 1</label>
+                                            <input type="radio" id="verduras-2" name="verduras" value="1a2">
+                                            <label for="verduras-2">1 a 2</label>
+                                            <input type="radio" id="verduras-3" name="verduras" value="mas3">
+                                            <label for="verduras-3">Más de 3</label>
+                                        </div>
+
+                                        <p>¿Se salta el desayuno frecuentemente?</p>
+                                        <div>
+                                            <input type="radio" id="desayuno-si" name="desayuno" value="si">
+                                            <label for="desayuno-si">Sí</label>
+                                            <input type="radio" id="desayuno-no" name="desayuno" value="no">
+                                            <label for="desayuno-no">No</label>
+                                        </div>
+
+                                        <p>¿Suele comer en exceso por las noches?</p>
+                                        <div>
+                                            <input type="radio" id="noche-si" name="noche" value="si">
+                                            <label for="noche-si">Sí</label>
+                                            <input type="radio" id="noche-no" name="noche" value="no">
+                                            <label for="noche-no">No</label>
+                                        </div>
+
+                                        <p>¿Come arroz blanco, pan blanco o similares más de 4 veces por semana?</p>
+                                        <div>
+                                            <input type="radio" id="carbo-si" name="carbo" value="si">
+                                            <label for="carbo-si">Sí</label>
+                                            <input type="radio" id="carbo-no" name="carbo" value="no">
+                                            <label for="carbo-no">No</label>
+                                        </div>
+
+                                        <p>¿Lleva una dieta balanceada con vegetales, granos, frutas y poca grasa?</p>
+                                        <div>
+                                            <input type="radio" id="dieta-si" name="dieta" value="si">
+                                            <label for="dieta-si">Sí</label>
+                                            <input type="radio" id="dieta-no" name="dieta" value="no">
+                                            <label for="dieta-no">No</label>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-success"
+                                                onclick="estimarGlucosa()">Estimar glucosa</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="resultadoGlucosa" class="alert alert-info mt-3" style="display: none;">
+                                    </div>
+                                </div>
+
+
+                                <!-- Presion Arterial -->
+                                <div class="form-group mt-4">
+                                    <label class="form-label fw-bold">7. Presión Arterial Estimada (valor
+                                        entero)</label>
+                                    <div class="input-group mb-2">
+                                        <input type="number" class="form-control" name="presion" id="presionInput"
+                                            placeholder="Ej: 66" required />
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            onclick="toggleEstimadorPresion()">No sé mi presión</button>
+                                    </div>
+
+                                    <!-- Estimador dinámico -->
+                                    <div id="estimadorPresion" style="display: none;">
+                                        <label class="form-label fw-bold">Estimación de Presión Arterial</label>
+
+                                        <p>¿Sufre de estrés frecuente?</p>
+                                        <div>
+                                            <input type="radio" id="estres-si" name="estres" value="si">
+                                            <label for="estres-si">Sí</label>
+                                            <input type="radio" id="estres-no" name="estres" value="no">
+                                            <label for="estres-no">No</label>
+                                        </div>
+
+                                        <p>¿Duerme menos de 6 horas al día?</p>
+                                        <div>
+                                            <input type="radio" id="sueno-si" name="sueno" value="si">
+                                            <label for="sueno-si">Sí</label>
+                                            <input type="radio" id="sueno-no" name="sueno" value="no">
+                                            <label for="sueno-no">No</label>
+                                        </div>
+
+                                        <p>¿Realiza actividad física menos de 2 veces por semana?</p>
+                                        <div>
+                                            <input type="radio" id="ejercicio-si" name="ejercicio" value="si">
+                                            <label for="ejercicio-si">Sí</label>
+                                            <input type="radio" id="ejercicio-no" name="ejercicio" value="no">
+                                            <label for="ejercicio-no">No</label>
+                                        </div>
+
+                                        <p>¿Consume alimentos altos en sodio (sal) regularmente?</p>
+                                        <div>
+                                            <input type="radio" id="sodio-si" name="sodio" value="si">
+                                            <label for="sodio-si">Sí</label>
+                                            <input type="radio" id="sodio-no" name="sodio" value="no">
+                                            <label for="sodio-no">No</label>
+                                        </div>
+
+                                        <p>¿Tiene antecedentes familiares de hipertensión?</p>
+                                        <div>
+                                            <input type="radio" id="familia-si" name="familia" value="si">
+                                            <label for="familia-si">Sí</label>
+                                            <input type="radio" id="familia-no" name="familia" value="no">
+                                            <label for="familia-no">No</label>
+                                        </div>
+
+                                        <p>¿Suele tener dolores de cabeza o mareos frecuentes?</p>
+                                        <div>
+                                            <input type="radio" id="dolores-si" name="dolores" value="si">
+                                            <label for="dolores-si">Sí</label>
+                                            <input type="radio" id="dolores-no" name="dolores" value="no">
+                                            <label for="dolores-no">No</label>
+                                        </div>
+
+                                        <p>¿Tiene sobrepeso u obesidad diagnosticada?</p>
+                                        <div>
+                                            <input type="radio" id="peso-si" name="peso" value="si">
+                                            <label for="peso-si">Sí</label>
+                                            <input type="radio" id="peso-no" name="peso" value="no">
+                                            <label for="peso-no">No</label>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-success"
+                                                onclick="estimarPresion()">Estimar presión</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="resultadoPresion" class="alert alert-info mt-3" style="display: none;">
+                                    </div>
+                                </div>
+
+                                <!-- Grosor de Piel -->
+                                <div class="form-group mt-4">
+                                    <label class="form-label fw-bold">8. Grosor de Piel (mm)</label>
+                                    <div class="input-group mb-2">
+                                        <input type="number" class="form-control" name="piel" id="pielInput"
+                                            placeholder="Ej: 20" />
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            onclick="toggleEstimadorPiel()">No sé mi grosor de piel</button>
+                                    </div>
+
+                                    <div id="estimadorPiel" style="display: none;">
+                                        <label class="form-label fw-bold">Estimación de Grosor de Piel (mm)</label>
+
+                                        <p>¿Realiza actividad física regularmente (3 veces por semana o más)?</p>
+                                        <div>
+                                            <input type="radio" id="actividad-si" name="actividad" value="si">
+                                            <label for="actividad-si">Sí</label>
+                                            <input type="radio" id="actividad-no" name="actividad" value="no">
+                                            <label for="actividad-no">No</label>
+                                        </div>
+
+                                        <p>¿Tiene grasa visible en abdomen, brazos o piernas?</p>
+                                        <div>
+                                            <input type="radio" id="grasa-si" name="grasa" value="si">
+                                            <label for="grasa-si">Sí</label>
+                                            <input type="radio" id="grasa-no" name="grasa" value="no">
+                                            <label for="grasa-no">No</label>
+                                        </div>
+
+                                        <p>¿Tiene sobrepeso u obesidad diagnosticada?</p>
+                                        <div>
+                                            <input type="radio" id="sobrepeso-si" name="sobrepeso" value="si">
+                                            <label for="sobrepeso-si">Sí</label>
+                                            <input type="radio" id="sobrepeso-no" name="sobrepeso" value="no">
+                                            <label for="sobrepeso-no">No</label>
+                                        </div>
+
+                                        <p>¿Su ropa le queda ajustada en brazos o abdomen?</p>
+                                        <div>
+                                            <input type="radio" id="ropa-si" name="ropa" value="si">
+                                            <label for="ropa-si">Sí</label>
+                                            <input type="radio" id="ropa-no" name="ropa" value="no">
+                                            <label for="ropa-no">No</label>
+                                        </div>
+
+                                        <!--aqui edad-->
+
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-success"
+                                                onclick="estimarPiel()">Estimar grosor
+                                                de piel</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="resultadoPiel" class="alert alert-info mt-3" style="display: none;">
+                                    </div>
+                                </div>
+
+                                <!-- Insulina -->
+                                <div class="form-group mt-4">
+                                    <label class="form-label fw-bold">9. Nivel de Insulina (uU/mL)</label>
+                                    <div class="input-group mb-2">
+                                        <input type="number" class="form-control" name="insulina" id="insulinaInput"
+                                            placeholder="Ej: 80" />
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            onclick="toggleEstimadorInsulina()">No sé mi insulina</button>
+                                    </div>
+
+                                    <div id="estimadorInsulina" style="display: none;">
+                                        <label class="form-label fw-bold">Estimación de insulina (basado en tus
+                                            hábitos)</label>
+
+                                        <p>¿Consume azúcares o harinas refinadas a diario?</p>
+                                        <div>
+                                            <input type="radio" id="azucarRefinada-si" name="azucarRefinada" value="si">
+                                            <label for="azucarRefinada-si">Sí</label>
+                                            <input type="radio" id="azucarRefinada-no" name="azucarRefinada" value="no">
+                                            <label for="azucarRefinada-no">No</label>
+                                        </div>
+
+                                        <p>¿Tiene sobrepeso u obesidad abdominal?</p>
+                                        <div>
+                                            <input type="radio" id="obesidad-si" name="obesidad" value="si">
+                                            <label for="obesidad-si">Sí</label>
+                                            <input type="radio" id="obesidad-no" name="obesidad" value="no">
+                                            <label for="obesidad-no">No</label>
+                                        </div>
+
+                                        <p>¿Hace ejercicio menos de 3 veces por semana?</p>
+                                        <div>
+                                            <input type="radio" id="sedentarismo-si" name="sedentarismo" value="si">
+                                            <label for="sedentarismo-si">Sí</label>
+                                            <input type="radio" id="sedentarismo-no" name="sedentarismo" value="no">
+                                            <label for="sedentarismo-no">No</label>
+                                        </div>
+
+                                        <p>¿Siente hambre constante o ansiedad por dulces?</p>
+                                        <div>
+                                            <input type="radio" id="ansiedad-si" name="ansiedad" value="si">
+                                            <label for="ansiedad-si">Sí</label>
+                                            <input type="radio" id="ansiedad-no" name="ansiedad" value="no">
+                                            <label for="ansiedad-no">No</label>
+                                        </div>
+
+                                        <p>¿Tiene familiares con diabetes tipo 2?</p>
+                                        <div>
+                                            <input type="radio" id="familia-si" name="familia" value="si">
+                                            <label for="familia-si">Sí</label>
+                                            <input type="radio" id="familia-no" name="familia" value="no">
+                                            <label for="familia-no">No</label>
+                                        </div>
+
+                                        <p>¿Tiene manchas oscuras en el cuello o axilas?</p>
+                                        <div>
+                                            <input type="radio" id="manchas-si" name="manchas" value="si">
+                                            <label for="manchas-si">Sí</label>
+                                            <input type="radio" id="manchas-no" name="manchas" value="no">
+                                            <label for="manchas-no">No</label>
+                                        </div>
+
+                                        <p>¿Siente cansancio después de comer?</p>
+                                        <div>
+                                            <input type="radio" id="cansancio-si" name="cansancio" value="si">
+                                            <label for="cansancio-si">Sí</label>
+                                            <input type="radio" id="cansancio-no" name="cansancio" value="no">
+                                            <label for="cansancio-no">No</label>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-success"
+                                                onclick="estimarInsulina()">Estimar
+                                                insulina</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="resultadoInsulina" class="alert alert-info mt-3" style="display: none;">
+                                    </div>
+                                </div>
+
+                                <!-- Funcion genetica -->
+                                <div class="form-group mt-4">
+                                    <label for="genetica"><strong>10. ¿Tiene familiares directos con diabetes (padres,
+                                            hermanos)?</strong></label><br>
+
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="radio" name="genetica_opcion"
+                                            id="genetica_si" value="0.8" required onclick="asignarGenetica(this.value)">
+                                        <label class="form-check-label" for="genetica_si">Sí</label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="genetica_opcion"
+                                            id="genetica_no" value="0.3" onclick="asignarGenetica(this.value)">
+                                        <label class="form-check-label" for="genetica_no">No</label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="genetica_opcion"
+                                            id="genetica_nosabe" value="0.5" onclick="asignarGenetica(this.value)">
+                                        <label class="form-check-label" for="genetica_nosabe">No sabe</label>
+                                    </div>
+
+                                    <!-- Mostrar valor asignado al usuario -->
+                                    <input type="text" class="form-control mt-2" id="geneticaVisible"
+                                        placeholder="Puntaje asignado" readonly>
+                                </div>
+
+                                <!-- Valor de funcion genetica -->
+                                <input type="hidden" id="genetica" name="funcion">
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success px-4 py-2">Predecir</button>
+                            </div>
+                        </form>
+                        <div class="mt-4 text-center">
+                            <p th:if="${salidaPython != null}" class="alert alert-info">
+                                <strong th:text="${salidaPython}"></strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function toggleEstimador() {
+            const estimador = document.getElementById("estimadorGlucosa");
+            estimador.style.display = estimador.style.display === "none" ? "block" : "none";
+        }
+
+        function estimarGlucosa() {
+
+            let puntos = 0;
+
+            // Preguntas tipo sí/no
+            const preguntasSiNo = [
+                "azucaradas",
+                "fritos",
+                "desayuno",
+                "noche",
+                "carbo"
+            ];
+
+            preguntasSiNo.forEach(pregunta => {
+                const respuesta = document.querySelector(`input[name="${pregunta}"]:checked`);
+                if (respuesta && respuesta.value === "si") {
+                    puntos++;
+                }
+            });
+
+            // Pregunta de verduras
+            const verdura = document.querySelector('input[name="verduras"]:checked');
+            if (verdura && (verdura.value === "menos1" || verdura.value === "1a2")) {
+                puntos++;
+            }
+
+            // Pregunta 7 (dieta balanceada) — riesgo si responde NO
+            const dieta = document.querySelector('input[name="dieta"]:checked');
+            if (dieta && dieta.value === "no") {
+                puntos++;
+            }
+
+            // Estimar glucosa
+            let estimacion = "";
+            let valorGlucosa = 0;
+
+            if (puntos <= 3) {
+                estimacion = "Riesgo bajo: estimado entre 90–110 mg/dL";
+                valorGlucosa = 100;
+            } else if (puntos <= 6) {
+                estimacion = "Riesgo medio: estimado entre 110–140 mg/dL";
+                valorGlucosa = 125;
+            } else {
+                estimacion = "Riesgo alto: estimado entre 140–200+ mg/dL";
+                valorGlucosa = 170;
+            }
+
+            document.getElementById("glucosaInput").value = valorGlucosa;
+            const resultado = document.getElementById("resultadoGlucosa");
+            resultado.innerText = estimacion;
+            resultado.style.display = "block";
+        }
+
+        function toggleEstimadorPresion() {
+            const estimador = document.getElementById("estimadorPresion");
+            estimador.style.display = estimador.style.display === "none" ? "block" : "none";
+        }
+
+        function estimarPresion() {
+            let puntos = 0;
+            const preguntas = ["estres", "sueno", "ejercicio", "sodio", "familia", "dolores", "peso"];
+
+            preguntas.forEach(p => {
+                const respuesta = document.querySelector(`input[name="${p}"]:checked`);
+                if (respuesta && respuesta.value === "si") {
+                    puntos++;
+                }
+            });
+
+            let estimacion = "";
+            let valorPresion = 0;
+
+            if (puntos <= 2) {
+                estimacion = "Presión normal estimada: bajo riesgo (valor: 66)";
+                valorPresion = 66;
+            } else if (puntos <= 5) {
+                estimacion = "Riesgo moderado de hipertensión (valor estimado: 79)";
+                valorPresion = 79;
+            } else {
+                estimacion = "Riesgo elevado de hipertensión (valor estimado: 93)";
+                valorPresion = 93;
+            }
+
+            document.getElementById("presionInput").value = valorPresion;
+            const resultado = document.getElementById("resultadoPresion");
+            resultado.innerText = estimacion;
+            resultado.style.display = "block";
+        }
+
+        function toggleEstimadorPiel() {
+            const estimador = document.getElementById("estimadorPiel");
+            estimador.style.display = estimador.style.display === "none" ? "block" : "none";
+        }
+
+        function estimarPiel() {
+            let puntos = 0;
+
+            const siNoPreguntas = ["actividad", "grasa", "sobrepeso", "ropa"];
+
+            siNoPreguntas.forEach(pregunta => {
+                const respuesta = document.querySelector(`input[name="${pregunta}"]:checked`);
+                if (respuesta) {
+                    if (pregunta === "actividad" && respuesta.value === "no") {
+                        puntos++; // inactividad suma punto
+                    } else if (pregunta !== "actividad" && respuesta.value === "si") {
+                        puntos++; // el resto sí suma punto
+                    }
+                }
+            });
+
+            // Edad (opcionalmente afecta si > 45 años)
+            const edadValor = parseInt(document.getElementById("edad").value);
+            if (!isNaN(edadValor) && edadValor >= 45) {
+                puntos++; // mayor edad contribuye
+            }
+
+            let estimacion = "";
+            let valorPiel = 0;
+
+            if (puntos <= 1) {
+                estimacion = "Grosor bajo estimado: < 15 mm";
+                valorPiel = 12;
+            } else if (puntos <= 3) {
+                estimacion = "Grosor medio estimado: 15 – 25 mm";
+                valorPiel = 20;
+            } else {
+                estimacion = "Grosor alto estimado: > 25 mm";
+                valorPiel = 30;
+            }
+
+            document.getElementById("pielInput").value = valorPiel;
+            const resultado = document.getElementById("resultadoPiel");
+            resultado.innerText = estimacion;
+            resultado.style.display = "block";
+        }
+
+        function toggleEstimadorInsulina() {
+            const estimador = document.getElementById("estimadorInsulina");
+            estimador.style.display = estimador.style.display === "none" ? "block" : "none";
+        }
+
+        function estimarInsulina() {
+            let puntos = 0;
+
+            const preguntasPuntaje = [
+                { name: "azucarRefinada", valor: 2 },
+                { name: "obesidad", valor: 2 },
+                { name: "sedentarismo", valor: 1 },
+                { name: "ansiedad", valor: 1 },
+                { name: "familia", valor: 1 },
+                { name: "manchas", valor: 2 },
+                { name: "cansancio", valor: 1 },
+            ];
+
+            preguntasPuntaje.forEach(p => {
+                const respuesta = document.querySelector(`input[name="${p.name}"]:checked`);
+                if (respuesta && respuesta.value === "si") {
+                    puntos += p.valor;
+                }
+            });
+
+            let estimacion = "";
+            let valorInsulina = 0;
+
+            if (puntos <= 2) {
+                estimacion = "Riesgo bajo: estimado entre 2–10 uU/mL";
+                valorInsulina = 6;
+            } else if (puntos <= 5) {
+                estimacion = "Riesgo medio: estimado entre 10–20 uU/mL";
+                valorInsulina = 15;
+            } else {
+                estimacion = "Riesgo alto: estimado entre 20–40+ uU/mL";
+                valorInsulina = 30;
+            }
+
+            document.getElementById("insulinaInput").value = valorInsulina;
+            const resultado = document.getElementById("resultadoInsulina");
+            resultado.innerText = estimacion;
+            resultado.style.display = "block";
+        }
+
+        function calcularIMC() {
+            const peso = parseFloat(document.getElementById("peso").value);
+            const estatura = parseFloat(document.getElementById("estatura").value);
+
+            if (!isNaN(peso) && !isNaN(estatura) && estatura > 0) {
+                const imc = peso / (estatura * estatura);
+                const imcRedondeado = imc.toFixed(2);
+
+                document.getElementById("imcVisible").value = imcRedondeado;
+                document.getElementById("imc").value = imcRedondeado;
+            } else {
+                document.getElementById("imcVisible").value = "";
+                document.getElementById("imc").value = "";
+            }
+        }
+
+        function asignarGenetica(valor) {
+            document.getElementById("geneticaVisible").value = valor;
+            document.getElementById("genetica").value = valor;
+        }
+
+        function mostrarCampoEmbarazos() {
+            const genero = document.getElementById("genero").value;
+            const campo = document.getElementById("campoEmbarazos");
+            const embarazos = document.getElementById("embarazos");
+            const embarazosHombre = document.getElementById("embarazosHombre");
+
+            if (genero === "femenino") {
+                campo.style.display = "block";
+                embarazos.removeAttribute("disabled");
+                embarazosHombre.disabled = true;
+            } else if (genero === "masculino") {
+                campo.style.display = "none";
+                embarazos.value = 0;
+                embarazos.setAttribute("disabled", true);
+                embarazosHombre.disabled = false;
+            } else {
+                campo.style.display = "none";
+                embarazos.value = "";
+                embarazos.setAttribute("disabled", true);
+                embarazosHombre.disabled = false;
+            }
+        }
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

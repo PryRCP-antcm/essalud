@@ -1,0 +1,28 @@
+.columna-conteiner {
+  background-color: #C7ECF9;
+}
+
+
+
+.contenedor-cuadro {
+  width: 900px;
+  /* height: 400px; --> Eliminado */
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  /* Agregado */
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  /* Agregado para espacio interno */
+}
+
+.resultado-python {
+  margin-top: 20px;
+  white-space: pre-wrap;
+  /* Para respetar saltos de línea del texto */
+  font-family: monospace;
+  /* Para simular estilo consola */
+}

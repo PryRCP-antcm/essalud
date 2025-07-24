@@ -1,0 +1,57 @@
+body {
+    background-color: #C7ECF9;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+}
+
+.bg-light-blue {
+    background-color: #C7ECF9;
+}
+
+.login-container {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    width: 150px;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.ingresar {
+    background-color: #0096E6;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+}
+
+.crear-cuenta {
+    background-color: #002C6B;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    color: white;
+}
+
+input.form-control {
+    background-color: #fcffec;
+    border-radius: 6px;
+}
+
+@media (max-width: 576px) {
+    .login-container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    .logo {
+        width: 100px;
+    }
+}

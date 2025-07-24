@@ -1,0 +1,64 @@
+.columna-conteiner {
+    background-color: #C7ECF9;
+}
+
+.contenedor-cuadro {
+    width: 900px;
+    max-width: 100%;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.btn-cita {
+    background-color: #1DA1F2;
+    /* Celeste */
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.btn-chatbot {
+    background-color: #003366;
+    /* Azul oscuro */
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.btn-chatbot:hover {
+    background-color: #002244;
+}
+
+.info-text {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.cita-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.cita-header {
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+.sub-header {
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.card {
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.01);
+}
