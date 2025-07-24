@@ -39,6 +39,8 @@ RUN wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz && \
     rm -rf Python-3.11.9* && \
     ln -s /usr/local/bin/python3.11 /usr/bin/python3 && \
     ln -s /usr/local/bin/pip3.11 /usr/bin/pip3
+    ln -s /usr/local/bin/python3.11 /usr/bin/python
+
 
 # Verifica la versión de Python y pip
 RUN python3 --version && pip3 --version
